@@ -10,11 +10,11 @@ OBJCOPY  = i386-elf-objcopy
 
 QEMU     = qemu-system-i386
 
-BOOT     = bootloader.asm
+BOOT     = boot/bootloader.asm
 BOOTBIN  = build/bootloader.bin
-KERNELENTRY = kernel_entry.asm
+KERNELENTRY = boot/kernel_entry.asm
 KERNELENTRYO = build/kernel_entry.o
-KERNELC  = kernel.c
+KERNELC  = kernel/kernel.c
 KERNELO  = build/kernel.o
 KERNELELF= build/kernel.elf
 KERNELBIN= build/kernel.bin
