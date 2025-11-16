@@ -11,14 +11,14 @@ OBJCOPY  = i386-elf-objcopy
 QEMU     = qemu-system-i386
 
 BOOT     = bootloader.asm
-BOOTBIN  = bootloader.bin
+BOOTBIN  = build/bootloader.bin
 KERNELENTRY = kernel_entry.asm
-KERNELENTRYO = kernel_entry.o
+KERNELENTRYO = build/kernel_entry.o
 KERNELC  = kernel.c
-KERNELO  = kernel.o
-KERNELELF= kernel.elf
-KERNELBIN= kernel.bin
-IMAGE    = os.img
+KERNELO  = build/kernel.o
+KERNELELF= build/kernel.elf
+KERNELBIN= build/kernel.bin
+IMAGE    = build/os.img
 
 FLOPPY_SIZE = 1474560
 
