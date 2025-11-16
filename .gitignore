@@ -1,0 +1,6 @@
+kernel_entry.o
+bootloader.bin
+kernel.bin
+kernel.elf
+kernel.o
+os.img
