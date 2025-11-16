@@ -17,8 +17,14 @@ static int cursor = 0;
 
 //writes a char to the vga buffer
 void vga_put_char(char c){
-    VGA_BUFFER[cursor] = (uint16_t)c | (0x07 << 8);
-    cursor++;
+    if(c == '\n'){
+        cursor = COLS * ((cursor/COLS) + 1);
+    } else if(c == '\r') {
+        cursor = (cursor / COLS) * COLS;
+    } else{
+        VGA_BUFFER[cursor] = (uint16_t)c | (0x07 << 8);
+        cursor++;
+    }   
 }
 
 void vga_print(char* str){
