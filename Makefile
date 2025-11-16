@@ -3,7 +3,7 @@ ASMFLAGS = -f bin
 ASMFLAGS_ELF = -f elf32
 
 CC       = i386-elf-gcc
-CFLAGS   = -ffreestanding -m16 -O2 -Wall -Wextra -nostdlib
+CFLAGS   = -ffreestanding -m32 -O2 -Wall -Wextra -nostdlib
 LD       = i386-elf-ld
 LDFLAGS  = -T linker.ld
 OBJCOPY  = i386-elf-objcopy
