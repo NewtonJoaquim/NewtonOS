@@ -22,7 +22,7 @@ start:
     mov sp, 0x7C00       ; simple stack
 
     ; Disk is in DL from BIOS (0x00 floppy, 0x80 HDD)
-    ; Load to ES:BX = 0x0000:0x1000 (physical 0x10000)
+    ; Load to ES:BX = 0x0000:0x1000 (physical address 0x1000)
     mov ax, 0x0000
     mov es, ax
     mov bx, 0x1000
@@ -53,6 +53,15 @@ start:
 hang:
     jmp hang
 
+gdt_start:
+    dq 0x0000000000000000   ; Null descriptor
+    dq 0x00CF9A000000FFFF   ; Code segment: base=0, limit=0xFFFFF, 32-bit, executable, readable
+    dq 0x00CF92000000FFFF   ; Data segment: base=0, limit=0xFFFFF, 32-bit, writable
+gdt_end:
+
+gdt_descriptor:
+    dw gdt_end - gdt_start - 1
+    dd gdt_start
 
 [BITS 32]
 protected_mode_entry:
@@ -67,16 +76,6 @@ protected_mode_entry:
     ; Now you're in 32-bit protected mode!
     ; Jump to kernel entry point at 0x1000
     call 0x1000
-
-gdt_start:
-    dq 0x0000000000000000   ; Null
-    dq 0x00CF9A000000FFFF   ; Code segment
-    dq 0x00CF92000000FFFF   ; Data segment
-gdt_end:
-
-gdt_descriptor:
-    dw gdt_end - gdt_start - 1
-    dd gdt_start
 
 
 SECTOR_COUNT equ 20         ; adjust to your kernel size in sectors

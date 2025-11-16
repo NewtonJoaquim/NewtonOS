@@ -1,22 +1,43 @@
+#include <stdint.h>
+#define COLS 80
+#define ROWS 25
 // kernel.c
-// A tiny C kernel that prints a message using BIOS interrupts
+// A tiny C kernel that prints a message using VGA text
 
-void print(const char* str) {
-    while (*str) {
-        // BIOS teletype output (int 0x10, ah=0x0E, al=character)
-        asm volatile (
-            "movb $0x0E, %%ah\n\t"
-            "movb %0, %%al\n\t"
-            "int $0x10"
-            :
-            : "r"((unsigned char)*str)
-            : "ax"
-        );
-        str++;
+/* 
+ * VGA text mode buffer starts at physical address 0xB8000.
+ * Each entry is 2 bytes: 
+ *   - low byte = ASCII character
+ *   - high byte = attribute (color: foreground + background)
+ */
+static uint16_t* const VGA_BUFFER = (uint16_t*)0xB8000;
+
+/* Cursor position: which cell we’re writing to (0..2000 for 80x25 screen). */
+static int cursor = 0;
+
+//writes a char to the vga buffer
+void vga_put_char(char c){
+    VGA_BUFFER[cursor] = (uint16_t)c | (0x07 << 8);
+    cursor++;
+}
+
+void vga_print(char* str){
+    while(*str) {
+        vga_put_char(*str);
+        *str++;
     }
 }
 
+void clear_screen(){
+    for (int i = 0; i < COLS * ROWS; i++) {
+        VGA_BUFFER[i] = (unsigned short)((0x07 << 8) | ' ');
+    }
+    cursor = 0;
+}
+
 void main() {
-    print("Hello from C kernel!\r\n");
-    for (;;); // hang
+    clear_screen();
+    vga_print("Hello from C kernel!");
+    vga_print("\nline 2!");
+    for (;;);
 }
