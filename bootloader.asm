@@ -9,8 +9,19 @@
 BITS 16
 ORG 0x7C00
 
+in al, 0x92
+or al, 00000010b
+out 0x92, al
+
 start:
     cli
+    lgdt [gdt_descriptor]
+
+    mov eax, cr0
+    or eax, 1
+    mov cr0, eax
+    jmp 0x08:protected_mode_entry   ; 0x08 = code segment selector
+
     xor ax, ax
     mov ds, ax
     mov es, ax
@@ -41,6 +52,31 @@ start:
 
 hang:
     jmp hang
+
+
+[BITS 32]
+protected_mode_entry:
+    mov ax, 0x10        ; data segment selector
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+
+    ; Now you’re in 32-bit protected mode!
+    ; You can call your C kernel here
+    call main
+
+gdt_start:
+    dq 0x0000000000000000   ; Null
+    dq 0x00CF9A000000FFFF   ; Code segment
+    dq 0x00CF92000000FFFF   ; Data segment
+gdt_end:
+
+gdt_descriptor:
+    dw gdt_end - gdt_start - 1
+    dd gdt_start
+
 
 SECTOR_COUNT equ 20         ; adjust to your kernel size in sectors
 
