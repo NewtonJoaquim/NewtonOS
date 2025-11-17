@@ -28,13 +28,6 @@ void idt_set_gate(int n, uint32_t handler, uint16_t selector, uint8_t type_attr)
     idt[n].offset_high = (handler >> 16) & 0xFFFF;
 }
 
-void keyboard_handler(void) {
-    uint8_t scancode = inb(0x60);   // read from keyboard port
-    char c = translate_scancode(scancode); // simple lookup
-    vga_put_char(c);
-    outb(0x20, 0x20);               // send EOI to PIC
-}
-
 extern void keyboard_handler_stub(); // assembly stub
 
 void idt_init(void) {
