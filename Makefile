@@ -3,7 +3,7 @@ ASMFLAGS = -f bin
 ASMFLAGS_ELF = -f elf32
 
 CC       = i386-elf-gcc
-CFLAGS   = -ffreestanding -m32 -O2 -Wall -Wextra -nostdlib
+CFLAGS = -ffreestanding -m32 -O2 -Wall -Wextra -nostdlib -Ikernel/utils -Ikernel/drivers
 LD       = i386-elf-ld
 LDFLAGS  = -T linker.ld
 OBJCOPY  = i386-elf-objcopy
@@ -27,6 +27,8 @@ PICREMAP  = kernel/idt/pic_remap.c
 PICREMAPO = build/pic_remap.o
 VGA       = kernel/drivers/vga/vga_helpers.c
 VGAO      = build/vga_helpers.o
+KEYBOARD    = kernel/drivers/keyboard/keyboard.c
+KEYBOARDO   = build/keyboard.o
 
 
 FLOPPY_SIZE = 1474560
@@ -54,8 +56,11 @@ $(PICREMAPO): $(PICREMAP)
 $(VGAO): $(VGA)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(KERNELELF): $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) linker.ld
-	$(LD) $(LDFLAGS) -o $@ $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO)
+$(KEYBOARDO): $(KEYBOARD)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(KERNELELF): $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) linker.ld
+	$(LD) $(LDFLAGS) -o $@ $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO)
 
 $(KERNELBIN): $(KERNELELF)
 	$(OBJCOPY) -O binary $< $@
