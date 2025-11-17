@@ -1,5 +1,4 @@
-#include "io_helpers.h"
-#include <stdint.h>
+#include "pic_remap.h"
 
 void pic_remap(void) {
     uint8_t a1, a2;
