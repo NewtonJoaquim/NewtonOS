@@ -25,7 +25,7 @@ IDT       = kernel/idt/idt.c
 IDTO      = build/idt.o
 PICREMAP  = kernel/idt/pic_remap.c
 PICREMAPO = build/pic_remap.o
-VGA       = kernel/drivers/vga_helpers.c
+VGA       = kernel/drivers/vga/vga_helpers.c
 VGAO      = build/vga_helpers.o
 
 

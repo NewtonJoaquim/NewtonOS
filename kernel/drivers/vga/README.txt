@@ -1,0 +1,1 @@
+VGA stands for Video Graphics Array. It’s an old but still widely supported graphics standard that lets your operating system display text and graphics on the screen. In OS development, we usually use VGA’s 80×25 text mode, which gives you a simple way to print characters by writing directly into video memory at address 

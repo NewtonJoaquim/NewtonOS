@@ -1,0 +1,1 @@
+The Interrupt Descriptor Table (IDT) is a special table in memory that tells the CPU where to jump when an interrupt or exception occurs. Each entry in the IDT points to an interrupt service routine (ISR) — the code that handles events like keyboard input, timer ticks, or CPU errors.
