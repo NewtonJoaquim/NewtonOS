@@ -19,6 +19,15 @@ KERNELO  = build/kernel.o
 KERNELELF= build/kernel.elf
 KERNELBIN= build/kernel.bin
 IMAGE    = build/os.img
+ISRSTUBS    = kernel/idt/isr_stubs.asm
+ISRSTUBSO   = build/isr_stubs.o
+IDT       = kernel/idt/idt.c
+IDTO      = build/idt.o
+PICREMAP  = kernel/idt/pic_remap.c
+PICREMAPO = build/pic_remap.o
+VGA       = kernel/drivers/vga_helpers.c
+VGAO      = build/vga_helpers.o
+
 
 FLOPPY_SIZE = 1474560
 
@@ -33,8 +42,20 @@ $(KERNELENTRYO): $(KERNELENTRY)
 $(KERNELO): $(KERNELC)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(KERNELELF): $(KERNELENTRYO) $(KERNELO) linker.ld
-	$(LD) $(LDFLAGS) -o $@ $(KERNELENTRYO) $(KERNELO)
+$(ISRSTUBSO): $(ISRSTUBS)
+	$(ASM) $(ASMFLAGS_ELF) $< -o $@
+
+$(IDTO): $(IDT)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(PICREMAPO): $(PICREMAP)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(VGAO): $(VGA)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(KERNELELF): $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) linker.ld
+	$(LD) $(LDFLAGS) -o $@ $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO)
 
 $(KERNELBIN): $(KERNELELF)
 	$(OBJCOPY) -O binary $< $@
@@ -47,4 +68,4 @@ run: $(IMAGE)
 	$(QEMU) -fda $(IMAGE)
 
 clean:
-	rm -f $(BOOTBIN) $(KERNELENTRYO) $(KERNELO) $(KERNELELF) $(KERNELBIN) $(IMAGE)
+	rm -f $(BOOTBIN) $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(KERNELELF) $(KERNELBIN) $(IMAGE)
