@@ -31,7 +31,9 @@ void pic_remap(void) {
     outb(0xA1, 0x01);
     io_wait();
 
-    // Restore saved masks
-    outb(0x21, a1);
-    outb(0xA1, a2);
+    // Mask all interrupts except keyboard (IRQ1 = bit 1)
+    // PIC mask: 1 = masked (disabled), 0 = unmasked (enabled)
+    // 0xFD = 11111101 = mask all except IRQ1 (keyboard)
+    outb(0x21, 0xFD);  // Master PIC: enable only IRQ1 (keyboard)
+    outb(0xA1, 0xFF);  // Slave PIC: mask all interrupts
 }
