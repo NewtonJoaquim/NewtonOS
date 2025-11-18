@@ -8,9 +8,6 @@
 
 void main() {
     clear_screen();
-    vga_print("Hello from C kernel!");
-    vga_print("\nline 2!");
-
     // Step 1: Remap PIC
     pic_remap();
 

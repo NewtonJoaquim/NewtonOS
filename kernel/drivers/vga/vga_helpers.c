@@ -30,6 +30,16 @@ void vga_print(char* str){
     }
 }
 
+void vga_print_hex(uint8_t byte) {
+    const char* hex_chars = "0123456789ABCDEF";
+
+    vga_put_char('0');
+    vga_put_char('x');
+    vga_put_char(hex_chars[(byte >> 4) & 0x0F]); // high nibble
+    vga_put_char(hex_chars[byte & 0x0F]);        // low nibble
+}
+
+
 void clear_screen(){
     for (int i = 0; i < COLS * ROWS; i++) {
         VGA_BUFFER[i] = (unsigned short)((0x07 << 8) | ' ');

@@ -2,8 +2,16 @@
 
 void keyboard_handler(void) {
     uint8_t scancode = inb(0x60);   // read from keyboard port
+    
+    // Ignore key releases
+    if (scancode & 0x80) {
+        outb(0x20, 0x20); // EOI
+        return;
+    }
+
     char c = translate_scancode(scancode); // simple lookup
     vga_put_char(c);
+    
     outb(0x20, 0x20);               // send EOI to PIC
 }
 

@@ -11,5 +11,6 @@
 void clear_screen(void);
 void vga_put_char(char c);
 void vga_print(char* str);
+void vga_print_hex(uint8_t byte);
 
 #endif
