@@ -4,9 +4,4 @@ kernel.bin
 kernel.elf
 kernel.o
 os.img
-build/idt.o
-.gitignore
-build/isr_stubs.o
-build/pic_remap.o
-build/keyboard.o
-build/vga_helpers.o
+build/*
