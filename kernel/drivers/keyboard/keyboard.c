@@ -21,8 +21,8 @@ void keyboard_handler(void)
         return;
     }
 
-    // Handle capslock press
-    if (scancode == 0x34)
+    // Handle capslock press (make code is 0x3A)
+    if (scancode == 0x3A)
     {
         capslock_pressed = !capslock_pressed;
         outb(0x20, 0x20);
