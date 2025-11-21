@@ -26,9 +26,6 @@ void keyboard_handler(void) {
 
     char c = translate_scancode(scancode); // simple lookup
      if (c) {
-        if (shift_pressed && c >= 'a' && c <= 'z') {
-            c = c - 32; // convert to uppercase ASCII
-        }
         vga_put_char(c);
     }
 
@@ -37,8 +34,12 @@ void keyboard_handler(void) {
 }
 
 char translate_scancode(uint8_t scancode) {
-    if (scancode < sizeof(scancode_table)) {
-        return scancode_table[scancode];
+    if (scancode < 128) {
+        if (shift_pressed)
+            return scancode_table_shift[scancode];
+        else
+            return scancode_table[scancode];
     }
-    return 0; // unknown key
+    return 0;
+
 }
