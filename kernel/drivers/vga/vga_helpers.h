@@ -14,5 +14,7 @@ void vga_print(char* str);
 void vga_scroll(void);
 void vga_print_hex(uint8_t byte);
 void vga_backspace(void);
+void vga_println(const char* str);
+
 
 #endif

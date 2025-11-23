@@ -84,6 +84,12 @@ void vga_print(char* str){
     }
 }
 
+void vga_println(const char* str) {
+    vga_print(str);
+    vga_newline();
+}
+
+
 void vga_scroll(void){
     for(int i = COLS; i< COLS * ROWS; i++){
         VGA_BUFFER[i - COLS] = VGA_BUFFER[i];

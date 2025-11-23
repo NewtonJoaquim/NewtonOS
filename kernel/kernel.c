@@ -14,6 +14,10 @@ void main() {
     // Step 2: Initialize IDT
     idt_init();
 
+    vga_println("Welcome to NewtonOS!");
+    vga_println("Type 'help' for commands.");
+
+
     // Step 4: Enable interrupts
     asm volatile("sti");
 
