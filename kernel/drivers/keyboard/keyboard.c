@@ -39,7 +39,26 @@ void keyboard_handler(void)
     char c = translate_scancode(scancode); // simple lookup
     if (c)
     {
-        vga_put_char(c);
+        if (c == '\n')
+        {
+            keyboard_buffer[buffer_index] = '\0';
+            line_ready = 1;
+            buffer_index = 0;
+            vga_put_char('\n');
+        }
+        else if (c == '\b')
+        {
+            if(buffer_index > 0) buffer_index--;
+            vga_backspace();
+        }
+        else
+        {
+            if(buffer_index < KEYBOARD_BUFFER_SIZE - 1){
+                keyboard_buffer[buffer_index] = c;
+                buffer_index++;
+                vga_put_char(c);
+            }
+        }
     }
 
     outb(0x20, 0x20); // send EOI to PIC

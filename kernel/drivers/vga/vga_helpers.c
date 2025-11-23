@@ -1,4 +1,5 @@
 #include "vga_helpers.h"
+#include "io_helpers.h"
 
 /* 
  * VGA text mode buffer starts at physical address 0xB8000.
@@ -37,6 +38,22 @@ void vga_print_hex(uint8_t byte) {
     vga_put_char('x');
     vga_put_char(hex_chars[(byte >> 4) & 0x0F]); // high nibble
     vga_put_char(hex_chars[byte & 0x0F]);        // low nibble
+}
+
+void vga_update_cursor(int pos) {
+    outb(0x3D4, 0x0F);
+    outb(0x3D5, (uint8_t)(pos & 0xFF));
+    outb(0x3D4, 0x0E);
+    outb(0x3D5, (uint8_t)((pos >> 8) & 0xFF));
+}
+
+
+void vga_backspace(void) {
+    if (cursor > 0) {
+        cursor--; // move back one cell
+        VGA_BUFFER[cursor] = (uint16_t)' ' | (0x07 << 8); // overwrite with space
+        vga_update_cursor(cursor); // update hardware cursor
+    }
 }
 
 
