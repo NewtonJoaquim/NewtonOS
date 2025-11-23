@@ -33,8 +33,7 @@ void vga_put_char(char c){
         VGA_BUFFER[get_cursor_position()] = (uint16_t)c | (0x07 << 8);
         cursor_x++;
         if(cursor_x >= COLS) {
-            cursor_x = 0;
-            cursor_y++;
+            vga_newline();
         }
     }
     //check if we need to scroll
@@ -46,6 +45,37 @@ void vga_put_char(char c){
     vga_update_cursor();   
 }
     
+void vga_newline(void){
+    cursor_x = 0;
+    cursor_y++;
+
+     // Optional: skip empty rows
+    int row_start = cursor_y * COLS;
+    int row_end   = row_start + COLS;
+
+    int last_filled = -1;
+    for (int i = row_end - 1; i >= row_start; i--) {
+        char ch = (char)(VGA_BUFFER[i] & 0xFF);
+        if (ch != ' ') {
+            last_filled = i - row_start;
+            break;
+        }
+    }
+
+    if (last_filled != -1) {
+        // If row already has text, move cursor after it
+        cursor_x = last_filled + 1;
+        if (cursor_x >= COLS) {
+            cursor_x = 0;
+            cursor_y++;
+        }
+    } else {
+        // Row is empty → stay at column 0
+        cursor_x = 0;
+    }
+
+    vga_update_cursor();
+}
 
 void vga_print(char* str){
     while(*str) {
