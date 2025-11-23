@@ -13,6 +13,10 @@ static uint16_t* const VGA_BUFFER = (uint16_t*)VGA_ADDRESS;
 static int cursor_x = 0;
 static int cursor_y = 0;
 
+int get_cursor_position(void){
+    return cursor_y * COLS + cursor_x;
+}
+
 //writes a char to the vga buffer
 void vga_put_char(char c){
     if(c == '\n'){
@@ -24,9 +28,9 @@ void vga_put_char(char c){
             cursor_y--;
             cursor_x = COLS - 1;
         }
-        VGA_BUFFER[cursor_y * COLS + cursor_x] = (uint16_t)' ' | (0x07 << 8);
+        VGA_BUFFER[get_cursor_position()] = (uint16_t)' ' | (0x07 << 8);
     } else{
-        VGA_BUFFER[cursor_y * COLS + cursor_x] = (uint16_t)c | (0x07 << 8);
+        VGA_BUFFER[get_cursor_position()] = (uint16_t)c | (0x07 << 8);
         cursor_x++;
         if(cursor_x >= COLS) {
             cursor_x = 0;
@@ -69,7 +73,7 @@ void vga_print_hex(uint8_t byte) {
 }
 
 void vga_update_cursor(void) {
-    int pos = cursor_y * COLS + cursor_x;
+    int pos = get_cursor_position();
     outb(0x3D4, 0x0F);
     outb(0x3D5, (uint8_t)(pos & 0xFF));
     outb(0x3D4, 0x0E);
@@ -83,9 +87,26 @@ void vga_backspace(void) {
     }
     else if(cursor_y > 0){
         cursor_y--;
-        cursor_x = COLS - 1;
+        //cursor_x = COLS - 1;
+        int row_start = cursor_y * COLS;
+        int row_end   = row_start + COLS;
+
+        int last_filled = -1;
+        for(int i = row_end-1 ; i >= row_start; i--){
+            char ch = (char)(VGA_BUFFER[i] & 0xFF);
+            if(ch != ' '){
+                last_filled = i - row_start;
+                break;
+            }
+        }
+        if(last_filled != -1){
+            cursor_x = last_filled;
+        } else {
+            cursor_x = 0;
+        }
+
     }
-    VGA_BUFFER[cursor_y * COLS + cursor_x] = (uint16_t)' ' | (0x07 << 8); // overwrite with space
+    VGA_BUFFER[get_cursor_position()] = (uint16_t)' ' | (0x07 << 8); // overwrite with space
     vga_update_cursor(); // update hardware cursor
 }
 
