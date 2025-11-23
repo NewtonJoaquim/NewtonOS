@@ -16,6 +16,7 @@ static int cursor = 0;
 void vga_put_char(char c){
     if(c == '\n'){
         cursor = COLS * ((cursor/COLS) + 1);
+        vga_scroll();
     } else if(c == '\r') {
         cursor = (cursor / COLS) * COLS;
     } else{
@@ -29,6 +30,22 @@ void vga_print(char* str){
     while(*str) {
         vga_put_char(*str);
         *str++;
+    }
+}
+
+void vga_scroll(void){
+    if(cursor >= COLS * ROWS ){
+        //moving rows up
+        for(int i=COLS; i<COLS*ROWS; i++) {
+            VGA_BUFFER[i-COLS] = VGA_BUFFER[i];
+        }
+        //clear last line
+        for(int i = COLS * (ROWS - 1); i <= COLS * ROWS; i++){
+            VGA_BUFFER[i] = (uint16_t)' ' | (0x07 << 8);
+        }
+        //reset cursor to the beginning of last line
+        cursor = COLS * (ROWS - 1);
+        vga_update_cursor(cursor);
     }
 }
 
