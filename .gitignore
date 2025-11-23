@@ -5,3 +5,4 @@ kernel.elf
 kernel.o
 os.img
 build/*
+.vscode/settings.json
