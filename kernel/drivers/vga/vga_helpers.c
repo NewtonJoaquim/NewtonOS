@@ -22,6 +22,7 @@ void vga_put_char(char c){
     } else{
         VGA_BUFFER[cursor] = (uint16_t)c | (0x07 << 8);
         cursor++;
+        vga_scroll();
     }
     vga_update_cursor(cursor);   
 }
