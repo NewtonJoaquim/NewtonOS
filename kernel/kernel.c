@@ -12,15 +12,15 @@ void main() {
     // Step 1: Remap PIC
     pic_remap();
 
-    // Step 2: Initialize IDT
+    // Step 2: Initialize IDT (including keyboard)
     idt_init();
+
+    // Step 4: Enable interrupts
+    asm volatile("sti");
 
     vga_println("Welcome to NewtonOS!");
     vga_println("Type 'help' for commands.");
     shell();
-
-    // Step 4: Enable interrupts
-    asm volatile("sti");
 
     // Halt loop
     for (;;) {
