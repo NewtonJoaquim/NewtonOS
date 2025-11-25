@@ -2,6 +2,7 @@
 #define KEYBOARD_H
 
 #define KEYBOARD_BUFFER_SIZE 128
+#define NULL 0
 
 #include <stdint.h>
 #include "scancode_table.c"
@@ -14,5 +15,7 @@ static int line_ready = 0;
 
 void keyboard_handler(void);
 char translate_scancode(uint8_t scancode);
+char* keyboard_readline(void);
+char* keyboard_readline(void);
 
 #endif

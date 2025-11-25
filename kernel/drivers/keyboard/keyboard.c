@@ -64,6 +64,15 @@ void keyboard_handler(void)
     outb(0x20, 0x20); // send EOI to PIC
 }
 
+char* keyboard_readline(void) {
+    if (line_ready) {
+        line_ready = 0; // reset flag
+        return keyboard_buffer;
+    }
+    return NULL; // no line yet
+}
+
+
 char translate_scancode(uint8_t scancode)
 {
     if (scancode < 128)

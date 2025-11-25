@@ -9,6 +9,7 @@
 #define VGA_ADDRESS 0xB8000
 
 void clear_screen(void);
+#define vga_clear clear_screen
 void vga_put_char(char c);
 void vga_print(char* str);
 void vga_scroll(void);

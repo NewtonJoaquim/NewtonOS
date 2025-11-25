@@ -29,6 +29,10 @@ VGA       = kernel/drivers/vga/vga_helpers.c
 VGAO      = build/vga_helpers.o
 KEYBOARD    = kernel/drivers/keyboard/keyboard.c
 KEYBOARDO   = build/keyboard.o
+SHELLSRC    = kernel/shell/shell.c
+SHELLO      = build/shell.o
+STRING      = kernel/utils/string.c
+STRINGO     = build/string.o
 
 
 FLOPPY_SIZE = 1474560
@@ -59,8 +63,14 @@ $(VGAO): $(VGA)
 $(KEYBOARDO): $(KEYBOARD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(KERNELELF): $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) linker.ld
-	$(LD) $(LDFLAGS) -o $@ $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO)
+$(SHELLO): $(SHELLSRC)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(STRINGO): $(STRING)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(KERNELELF): $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(SHELLO) $(STRINGO) linker.ld
+	$(LD) $(LDFLAGS) -o $@ $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(SHELLO) $(STRINGO)
 
 $(KERNELBIN): $(KERNELELF)
 	$(OBJCOPY) -O binary $< $@
@@ -73,4 +83,4 @@ run: $(IMAGE)
 	$(QEMU) -fda $(IMAGE)
 
 clean:
-	rm -f $(BOOTBIN) $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(KERNELELF) $(KERNELBIN) $(IMAGE)
+	rm -f $(BOOTBIN) $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(SHELLO) $(STRINGO) $(KERNELELF) $(KERNELBIN) $(IMAGE)

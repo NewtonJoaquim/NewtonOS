@@ -2,6 +2,7 @@
 #include "idt/idt.h"
 #include "idt/pic_remap.h"
 #include "drivers/keyboard/keyboard.h"
+#include "shell/shell.h"
 
 // kernel.c
 // A tiny C kernel that prints a message using VGA text
@@ -16,7 +17,7 @@ void main() {
 
     vga_println("Welcome to NewtonOS!");
     vga_println("Type 'help' for commands.");
-
+    shell();
 
     // Step 4: Enable interrupts
     asm volatile("sti");
