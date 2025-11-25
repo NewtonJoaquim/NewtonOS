@@ -3,11 +3,11 @@
 
 void shell(void) {
     vga_clear();
-    vga_println("NewtonOS Shell");
-    vga_println("Type 'help' for commands.");
+    vga_print_colorln("NewtonOS Shell", VGA_LIGHT_GREEN, VGA_BLACK);
+    vga_print_colorln("Type 'help' for commands.", VGA_CYAN, VGA_BLACK);
 
     while (1) {
-        vga_print("> "); // prompt
+        vga_print_color("> ", VGA_YELLOW, VGA_BLACK); // prompt
 
         // Wait until a line is ready
         char* line = NULL;

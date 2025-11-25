@@ -21,9 +21,6 @@ void initalize(){
 
 void main() {
     initalize();
-
-    vga_println("Welcome to NewtonOS!");
-    vga_println("Type 'help' for commands.");
     shell();
 
     // Halt loop

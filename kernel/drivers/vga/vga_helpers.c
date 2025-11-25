@@ -17,6 +17,29 @@ int get_cursor_position(void){
     return cursor_y * COLS + cursor_x;
 }
 
+//This function encodes foreground and background colors into a single 8-bit byte,
+static inline uint8_t vga_entry_color(enum vga_color fg, enum vga_color bg) {
+    return fg | bg << 4;
+}
+
+void vga_put_char_color(char c, enum vga_color fg, enum vga_color bg) {
+    uint16_t attribute = vga_entry_color(fg, bg);
+    VGA_BUFFER[get_cursor_position()] = c | (attribute << 8);
+
+    cursor_x++;
+    if (cursor_x >= COLS) {
+        cursor_x = 0;
+        cursor_y++;
+    }
+    if (cursor_y >= ROWS) {
+        vga_scroll();
+        cursor_y = ROWS - 1;
+    }
+    vga_update_cursor();
+}
+
+
+
 //writes a char to the vga buffer
 void vga_put_char(char c){
     if(c == '\n'){
@@ -84,11 +107,22 @@ void vga_print(char* str){
     }
 }
 
+void vga_print_color(const char* str, enum vga_color fg, enum vga_color bg) {
+    while (*str) {
+        vga_put_char_color(*str++, fg, bg);
+    }
+}
+
+void vga_print_colorln(const char* str, enum vga_color fg, enum vga_color bg) {
+    vga_print_color(str, fg, bg);
+    vga_newline();
+}
+
+
 void vga_println(const char* str) {
     vga_print(str);
     vga_newline();
 }
-
 
 void vga_scroll(void){
     for(int i = COLS; i< COLS * ROWS; i++){
@@ -115,7 +149,6 @@ void vga_update_cursor(void) {
     outb(0x3D4, 0x0E);
     outb(0x3D5, (uint8_t)((pos >> 8) & 0xFF));
 }
-
 
 void vga_backspace(void) {
     if (cursor_x > 0) {
@@ -145,7 +178,6 @@ void vga_backspace(void) {
     VGA_BUFFER[get_cursor_position()] = (uint16_t)' ' | (0x07 << 8); // overwrite with space
     vga_update_cursor(); // update hardware cursor
 }
-
 
 void clear_screen(){
     for (int i = 0; i < COLS * ROWS; i++) {
