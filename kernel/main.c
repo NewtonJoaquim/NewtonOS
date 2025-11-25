@@ -4,7 +4,7 @@
 #include "drivers/keyboard/keyboard.h"
 #include "shell/shell.h"
 
-// kernel.c
+// main.c
 // A tiny C kernel with shell commands
 
 void initalize(){
