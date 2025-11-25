@@ -5,9 +5,9 @@
 #include "shell/shell.h"
 
 // kernel.c
-// A tiny C kernel that prints a message using VGA text
+// A tiny C kernel with shell commands
 
-void main() {
+void initalize(){
     clear_screen();
     // Step 1: Remap PIC
     pic_remap();
@@ -17,6 +17,10 @@ void main() {
 
     // Step 4: Enable interrupts
     asm volatile("sti");
+}
+
+void main() {
+    initalize();
 
     vga_println("Welcome to NewtonOS!");
     vga_println("Type 'help' for commands.");
