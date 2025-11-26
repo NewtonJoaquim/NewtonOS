@@ -7,6 +7,13 @@ void keyboard_handler(void)
 {
     uint8_t scancode = inb(0x60); // read from keyboard port
 
+    if (scancode == 0xE0)
+    {
+        last_key = scancode;
+        outb(0x20, 0x20);
+        return;
+    }
+
     // Handle Shift press/release
     if (scancode == 0x2A || scancode == 0x36)
     {
@@ -36,42 +43,69 @@ void keyboard_handler(void)
         return;
     }
 
-    char c = translate_scancode(scancode); // simple lookup
-    if (c)
+    if (last_key == 0xE0)
     {
-        if (c == '\n')
+        // extended key sequence
+        switch (scancode)
         {
-            keyboard_buffer[buffer_index] = '\0';
-            line_ready = 1;
-            buffer_index = 0;
-            vga_put_char('\n');
+        case 0x48:
+            last_key = KEY_UP;
+            break;
+        case 0x50:
+            last_key = KEY_DOWN;
+            break;
+        case 0x4B:
+            last_key = KEY_LEFT;
+            break;
+        case 0x4D:
+            last_key = KEY_RIGHT;
+            break;
+        default:
+            last_key = 0;
+            break;
         }
-        else if (c == '\b')
+    }
+    else
+    {
+        char c = translate_scancode(scancode); // simple lookup
+        if (c)
         {
-            if(buffer_index > 0) buffer_index--;
-            vga_backspace();
-        }
-        else
-        {
-            if(buffer_index < KEYBOARD_BUFFER_SIZE - 1){
-                keyboard_buffer[buffer_index] = c;
-                buffer_index++;
-                vga_put_char(c);
+            if (c == '\n')
+            {
+                keyboard_buffer[buffer_index] = '\0';
+                line_ready = 1;
+                buffer_index = 0;
+                vga_put_char('\n');
+            }
+            else if (c == '\b')
+            {
+                if (buffer_index > 0)
+                    buffer_index--;
+                vga_backspace();
+            }
+            else
+            {
+                if (buffer_index < KEYBOARD_BUFFER_SIZE - 1)
+                {
+                    keyboard_buffer[buffer_index] = c;
+                    buffer_index++;
+                    vga_put_char(c);
+                }
             }
         }
     }
-
     outb(0x20, 0x20); // send EOI to PIC
 }
 
-char* keyboard_readline(void) {
-    if (line_ready) {
+char *keyboard_readline(void)
+{
+    if (line_ready)
+    {
         line_ready = 0; // reset flag
         return keyboard_buffer;
     }
     return NULL; // no line yet
 }
-
 
 char translate_scancode(uint8_t scancode)
 {
@@ -87,4 +121,11 @@ char translate_scancode(uint8_t scancode)
             return scancode_table[scancode];
     }
     return 0;
+}
+
+int keyboard_last_key(void)
+{
+    int key = last_key;
+    last_key = 0; // clear after read
+    return key;
 }

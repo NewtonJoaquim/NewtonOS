@@ -5,7 +5,7 @@
 
 int strcmp(const char* s1, const char* s2);
 int strncmp(const char* s1, const char* s2, size_t n);
-char* strcpy(char* dest, const char* src);
+char* strcpy(char* dest, const char* src, int max);
 size_t strlen(const char* s);
 
 #endif

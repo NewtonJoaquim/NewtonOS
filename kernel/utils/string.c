@@ -18,11 +18,15 @@ int strncmp(const char* s1, const char* s2, size_t n) {
     return (unsigned char)*s1 - (unsigned char)*s2;
 }
 
-char* strcpy(char* dest, const char* src) {
-    char* d = dest;
-    while ((*d++ = *src++));
-    return dest;
+void strcpy(char* dest, const char* src, int max) {
+    int i = 0;
+    while (src[i] && i < max - 1) {
+        dest[i] = src[i];
+        i++;
+    }
+    dest[i] = '\0';
 }
+
 
 size_t strlen(const char* s) {
     size_t len = 0;
