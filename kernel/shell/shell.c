@@ -83,7 +83,8 @@ void shell(void)
             vga_println("  help  - show this message");
             vga_println("  clear - clear the screen");
             vga_println("  echo  - repeat your input");
-            vga_println("  ver      - show system info");
+            vga_println("  ver   - show system info");
+            vga_println("  date   - show date and time");
         }
         else if (strcmp(line, "clear") == 0)
         {
@@ -101,7 +102,15 @@ void shell(void)
             vga_print_color("Build: ", VGA_CYAN, VGA_BLACK);
             vga_println(OS_BUILD);
         }
-
+        else if (str_cmp(line, "date") == 0) {
+            struct rtc_time now = get_time();
+            char buf[64];
+            // Format: DD/MM/YYYY HH:MM:SS
+            sprintf(buf, "%02d/%02d/%04d %02d:%02d:%02d",
+                    now.day, now.month, now.year,
+                    now.hour, now.min, now.sec);
+            vga_println(buf);
+        }
         else
         {
             vga_print("Unknown command: ");
