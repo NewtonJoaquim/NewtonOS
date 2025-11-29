@@ -1,5 +1,6 @@
 #include "shell.h"
 #include "string.h"
+#include "info.h"
 
 #define HISTORY_SIZE 10
 #define MAX_CMD_LEN 128
@@ -82,6 +83,7 @@ void shell(void)
             vga_println("  help  - show this message");
             vga_println("  clear - clear the screen");
             vga_println("  echo  - repeat your input");
+            vga_println("  ver      - show system info");
         }
         else if (strcmp(line, "clear") == 0)
         {
@@ -91,6 +93,15 @@ void shell(void)
         {
             vga_println(line + 5);
         }
+        else if (strcmp(line, "ver") == 0 || strcmp(line, "version") == 0) {
+            vga_print_color(OS_NAME, VGA_LIGHT_GREEN, VGA_BLACK);
+            vga_print(" ");
+            vga_println(OS_VERSION);
+
+            vga_print_color("Build: ", VGA_CYAN, VGA_BLACK);
+            vga_println(OS_BUILD);
+        }
+
         else
         {
             vga_print("Unknown command: ");
