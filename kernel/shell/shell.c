@@ -10,7 +10,7 @@ static int history_index = -1; // -1 means no history selected
 
 void add_history(const char* line) {
     if (strlen(line) > 0) {
-        strcpy(history[history_count % HISTORY_SIZE], line, MAX_CMD_LEN);
+        strlcpy(history[history_count % HISTORY_SIZE], line, MAX_CMD_LEN);
         history_count++;
         history_index = -1; // reset navigation
     }
@@ -21,7 +21,7 @@ void recall_previous_command(char* buffer, int* buffer_index) {
         if (history_index < history_count - 1) {
             history_index++;
         }
-        strcpy(buffer, history[(history_count - 1 - history_index) % HISTORY_SIZE], MAX_CMD_LEN);
+        strlcpy(buffer, history[(history_count - 1 - history_index) % HISTORY_SIZE], MAX_CMD_LEN);
         *buffer_index = strlen(buffer);
 
         vga_print(buffer);
@@ -31,7 +31,7 @@ void recall_previous_command(char* buffer, int* buffer_index) {
 void recall_next_command(char* buffer, int* buffer_index) {
     if (history_index > 0) {
         history_index--;
-        strcpy(buffer, history[(history_count - 1 - history_index) % HISTORY_SIZE], MAX_CMD_LEN);
+        strlcpy(buffer, history[(history_count - 1 - history_index) % HISTORY_SIZE], MAX_CMD_LEN);
         *buffer_index = strlen(buffer);
 
         vga_print(buffer);
@@ -72,6 +72,7 @@ void shell(void)
             }
         }
 
+        str_trim_newline(line); 
         add_history(line);
 
         // Process command

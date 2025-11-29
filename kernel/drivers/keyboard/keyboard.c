@@ -1,7 +1,16 @@
 #include "keyboard.h"
 
+char keyboard_buffer[KEYBOARD_BUFFER_SIZE];
+int buffer_index = 0;
+int line_ready = 0;
+int last_key = 0;
+
 static int shift_pressed = 0;
 static int capslock_pressed = 0;
+
+#include "scancode_table.c"
+
+#define NULL 0
 
 void keyboard_handler(void)
 {
