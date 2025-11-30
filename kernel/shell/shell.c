@@ -102,13 +102,43 @@ void shell(void)
             vga_print_color("Build: ", VGA_CYAN, VGA_BLACK);
             vga_println(OS_BUILD);
         }
-        else if (str_cmp(line, "date") == 0) {
+        else if (strcmp(line, "date") == 0) {
             struct rtc_time now = get_time();
             char buf[64];
-            // Format: DD/MM/YYYY HH:MM:SS
-            sprintf(buf, "%02d/%02d/%04d %02d:%02d:%02d",
-                    now.day, now.month, now.year,
-                    now.hour, now.min, now.sec);
+            int i = 0;
+            int d;
+            // DD/
+            d = now.day;
+            buf[i++] = '0' + (d / 10) % 10;
+            buf[i++] = '0' + (d % 10);
+            buf[i++] = '/';
+            // MM/
+            d = now.month;
+            buf[i++] = '0' + (d / 10) % 10;
+            buf[i++] = '0' + (d % 10);
+            buf[i++] = '/';
+            // YYYY 'assuming year is 4 digits'
+            d = now.year;
+            buf[i++] = '0' + ((d / 1000) % 10);
+            buf[i++] = '0' + ((d / 100) % 10);
+            buf[i++] = '0' + ((d / 10) % 10);
+            buf[i++] = '0' + (d % 10);
+            buf[i++] = ' ';
+            // HH:
+            d = now.hour;
+            buf[i++] = '0' + (d / 10) % 10;
+            buf[i++] = '0' + (d % 10);
+            buf[i++] = ':';
+            // MM:
+            d = now.min;
+            buf[i++] = '0' + (d / 10) % 10;
+            buf[i++] = '0' + (d % 10);
+            buf[i++] = ':';
+            // SS
+            d = now.sec;
+            buf[i++] = '0' + (d / 10) % 10;
+            buf[i++] = '0' + (d % 10);
+            buf[i] = '\0';
             vga_println(buf);
         }
         else

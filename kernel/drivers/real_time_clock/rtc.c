@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include "rtc.h"
+#include "io_helpers.h"
 
 //The RTC is accessible via I/O ports 0x70 (index) and 0x71 (data).
 //Registers store seconds, minutes, hours, day, month, year.

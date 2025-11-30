@@ -29,6 +29,8 @@ VGA       = kernel/drivers/vga/vga_helpers.c
 VGAO      = build/vga_helpers.o
 KEYBOARD    = kernel/drivers/keyboard/keyboard.c
 KEYBOARDO   = build/keyboard.o
+RTC         = kernel/drivers/real_time_clock/rtc.c
+RTCO        = build/rtc.o
 SHELLSRC    = kernel/shell/shell.c
 SHELLO      = build/shell.o
 STRING      = kernel/utils/string.c
@@ -63,14 +65,17 @@ $(VGAO): $(VGA)
 $(KEYBOARDO): $(KEYBOARD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(RTCO): $(RTC)
+	$(CC) $(CFLAGS) -c $< -o $@
+
 $(SHELLO): $(SHELLSRC)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(STRINGO): $(STRING)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(KERNELELF): $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(SHELLO) $(STRINGO) linker.ld
-	$(LD) $(LDFLAGS) -o $@ $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(SHELLO) $(STRINGO)
+$(KERNELELF): $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(RTCO) $(SHELLO) $(STRINGO) linker.ld
+	$(LD) $(LDFLAGS) -o $@ $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(RTCO) $(SHELLO) $(STRINGO)
 
 $(KERNELBIN): $(KERNELELF)
 	$(OBJCOPY) -O binary $< $@
@@ -83,4 +88,4 @@ run: $(IMAGE)
 	$(QEMU) -fda $(IMAGE)
 
 clean:
-	rm -f $(BOOTBIN) $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(SHELLO) $(STRINGO) $(KERNELELF) $(KERNELBIN) $(IMAGE)
+	rm -f $(BOOTBIN) $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(RTCO) $(SHELLO) $(STRINGO) $(KERNELELF) $(KERNELBIN) $(IMAGE)
