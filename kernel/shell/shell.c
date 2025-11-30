@@ -106,39 +106,33 @@ void shell(void)
             struct rtc_time now = get_time();
             char buf[64];
             int i = 0;
-            int d;
-            // DD/
-            d = now.day;
-            buf[i++] = '0' + (d / 10) % 10;
-            buf[i++] = '0' + (d % 10);
+            // DD/MM/YYYY HH:MM:SS
+            buf[i++] = '0' + (now.day / 10) % 10;
+            buf[i++] = '0' + now.day % 10;
             buf[i++] = '/';
-            // MM/
-            d = now.month;
-            buf[i++] = '0' + (d / 10) % 10;
-            buf[i++] = '0' + (d % 10);
+            buf[i++] = '0' + (now.month / 10) % 10;
+            buf[i++] = '0' + now.month % 10;
             buf[i++] = '/';
-            // YYYY 'assuming year is 4 digits'
-            d = now.year;
-            buf[i++] = '0' + ((d / 1000) % 10);
-            buf[i++] = '0' + ((d / 100) % 10);
-            buf[i++] = '0' + ((d / 10) % 10);
-            buf[i++] = '0' + (d % 10);
+            buf[i++] = '0' + (now.year / 1000) % 10;
+            buf[i++] = '0' + (now.year / 100) % 10;
+            buf[i++] = '0' + (now.year / 10) % 10;
+            buf[i++] = '0' + now.year % 10;
             buf[i++] = ' ';
-            // HH:
-            d = now.hour;
-            buf[i++] = '0' + (d / 10) % 10;
-            buf[i++] = '0' + (d % 10);
+            buf[i++] = '0' + (now.hour / 10) % 10;
+            buf[i++] = '0' + now.hour % 10;
             buf[i++] = ':';
-            // MM:
-            d = now.min;
-            buf[i++] = '0' + (d / 10) % 10;
-            buf[i++] = '0' + (d % 10);
+            buf[i++] = '0' + (now.min / 10) % 10;
+            buf[i++] = '0' + now.min % 10;
             buf[i++] = ':';
-            // SS
-            d = now.sec;
-            buf[i++] = '0' + (d / 10) % 10;
-            buf[i++] = '0' + (d % 10);
+            buf[i++] = '0' + (now.sec / 10) % 10;
+            buf[i++] = '0' + now.sec % 10;
             buf[i] = '\0';
+            vga_println(buf);
+        }
+        else if (strcmp(line, "uptime") == 0) {
+            struct uptime up = get_uptime();
+            char buf[64];
+            sprintf(buf, "Uptime: %02d:%02d:%02d", up.hours, up.minutes, up.seconds);
             vga_println(buf);
         }
         else

@@ -35,7 +35,10 @@ SHELLSRC    = kernel/shell/shell.c
 SHELLO      = build/shell.o
 STRING      = kernel/utils/string.c
 STRINGO     = build/string.o
-
+PRINT       = kernel/utils/print.c
+PRINTO      = build/print.o
+TIMER       = kernel/drivers/timer/timer.c
+TIMERO      = build/timer.o
 
 FLOPPY_SIZE = 1474560
 
@@ -62,6 +65,9 @@ $(PICREMAPO): $(PICREMAP)
 $(VGAO): $(VGA)
 	$(CC) $(CFLAGS) -c $< -o $@
 
+$(PRINTO): $(PRINT)
+	$(CC) $(CFLAGS) -c $< -o $@
+
 $(KEYBOARDO): $(KEYBOARD)
 	$(CC) $(CFLAGS) -c $< -o $@
 
@@ -74,8 +80,11 @@ $(SHELLO): $(SHELLSRC)
 $(STRINGO): $(STRING)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(KERNELELF): $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(RTCO) $(SHELLO) $(STRINGO) linker.ld
-	$(LD) $(LDFLAGS) -o $@ $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(RTCO) $(SHELLO) $(STRINGO)
+$(TIMERO): $(TIMER)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(KERNELELF): $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(PRINTO) $(KEYBOARDO) $(RTCO) $(SHELLO) $(STRINGO) $(TIMERO) linker.ld
+	$(LD) $(LDFLAGS) -o $@ $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(PRINTO) $(KEYBOARDO) $(RTCO) $(SHELLO) $(STRINGO) $(TIMERO)
 
 $(KERNELBIN): $(KERNELELF)
 	$(OBJCOPY) -O binary $< $@
@@ -88,4 +97,4 @@ run: $(IMAGE)
 	$(QEMU) -fda $(IMAGE)
 
 clean:
-	rm -f $(BOOTBIN) $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(RTCO) $(SHELLO) $(STRINGO) $(KERNELELF) $(KERNELBIN) $(IMAGE)
+	rm -f $(BOOTBIN) $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(PRINTO) $(KEYBOARDO) $(RTCO) $(SHELLO) $(STRINGO) $(KERNELELF) $(KERNELBIN) $(IMAGE)
