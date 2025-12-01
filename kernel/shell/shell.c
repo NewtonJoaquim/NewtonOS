@@ -85,6 +85,9 @@ void shell(void)
             vga_println("  echo  - repeat your input");
             vga_println("  ver   - show system info");
             vga_println("  date   - show date and time");
+            vga_println("  uptime   - show system uptime");
+            vga_println("  ls       - list files (stub)");
+            vga_println("  cat      - show file contents (stub)");
         }
         else if (strcmp(line, "clear") == 0)
         {
@@ -143,6 +146,26 @@ void shell(void)
             buf[i++] = '0' + up.seconds % 10;
             buf[i] = '\0';
             vga_println(buf);
+        }
+        else if (strcmp(line, "ls") == 0) {
+            vga_println("kernel.bin");
+            vga_println("readme.txt");
+            vga_println("shell.c");
+            vga_println("drivers/");
+        }
+        else if (line[0]=='c' && line[1]=='a' && line[2]=='t' && line[3]==' ') {
+            char* filename = line + 4;
+            if (strcmp(filename, "readme.txt") == 0) {
+                vga_println("Welcome to NewtonOS!");
+                vga_println("This is a stubbed file system.");
+            } else if (strcmp(filename, "kernel.bin") == 0) {
+                vga_println("Binary file: kernel.bin (stub)");
+            } else if (strcmp(filename, "shell.c") == 0) {
+                vga_println("// shell.c source code stub");
+            } else {
+                vga_print_color("File not found: ", VGA_LIGHT_RED, VGA_BLACK);
+                vga_println(filename);
+            }
         }
         else
         {
