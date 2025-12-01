@@ -52,6 +52,7 @@ void shell(void)
     vga_print_colorln("NewtonOS Shell", VGA_LIGHT_GREEN, VGA_BLACK);
     vga_print_colorln("Type 'help' for commands.", VGA_CYAN, VGA_BLACK);
 
+    init_files();
     while (1)
     {
         vga_print_color("> ", VGA_YELLOW, VGA_BLACK); // prompt

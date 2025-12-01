@@ -37,6 +37,8 @@ STRING      = kernel/utils/string.c
 STRINGO     = build/string.o
 TIMER       = kernel/drivers/timer/timer.c
 TIMERO      = build/timer.o
+FS       = kernel/drivers/file_system/fs.c
+FSO      = build/fs.o
 
 FLOPPY_SIZE = 1474560
 
@@ -55,6 +57,9 @@ $(ISRSTUBSO): $(ISRSTUBS)
 	$(ASM) $(ASMFLAGS_ELF) $< -o $@
 
 $(IDTO): $(IDT)
+	$(CC) $(CFLAGS) -c $< -o $@
+
+$(FSO): $(FS)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(PICREMAPO): $(PICREMAP)
@@ -78,8 +83,8 @@ $(STRINGO): $(STRING)
 $(TIMERO): $(TIMER)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(KERNELELF): $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(RTCO) $(SHELLO) $(STRINGO) $(TIMERO) linker.ld
-	$(LD) $(LDFLAGS) -o $@ $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(RTCO) $(SHELLO) $(STRINGO) $(TIMERO)
+$(KERNELELF): $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(RTCO) $(SHELLO) $(STRINGO) $(TIMERO) $(FSO) linker.ld
+	$(LD) $(LDFLAGS) -o $@ $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(RTCO) $(SHELLO) $(STRINGO) $(TIMERO) $(FSO)
 
 $(KERNELBIN): $(KERNELELF)
 	$(OBJCOPY) -O binary $< $@
