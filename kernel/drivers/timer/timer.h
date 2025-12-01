@@ -1,3 +1,6 @@
+#ifndef TIMER_H
+#define TIMER_H
+
 struct uptime {
     int hours;
     int minutes;
@@ -5,3 +8,6 @@ struct uptime {
 };
 
 struct uptime get_uptime();
+void timer_init();
+
+#endif /* TIMER_H */

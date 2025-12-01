@@ -3,6 +3,7 @@
 #include "idt/pic_remap.h"
 #include "drivers/keyboard/keyboard.h"
 #include "shell/shell.h"
+#include "drivers/timer/timer.h"
 
 // main.c
 // A tiny C kernel with shell commands
@@ -14,6 +15,9 @@ void initalize(){
 
     // Step 2: Initialize IDT (including keyboard)
     idt_init();
+
+    // Step 3: Initialize PIT timer
+    timer_init();
 
     // Step 4: Enable interrupts
     asm volatile("sti");

@@ -132,7 +132,16 @@ void shell(void)
         else if (strcmp(line, "uptime") == 0) {
             struct uptime up = get_uptime();
             char buf[64];
-            sprintf(buf, "Uptime: %02d:%02d:%02d", up.hours, up.minutes, up.seconds);
+            int i = 0;
+            buf[i++] = '0' + (up.hours / 10) % 10;
+            buf[i++] = '0' + up.hours % 10;
+            buf[i++] = ':';
+            buf[i++] = '0' + (up.minutes / 10) % 10;
+            buf[i++] = '0' + up.minutes % 10;
+            buf[i++] = ':';
+            buf[i++] = '0' + (up.seconds / 10) % 10;
+            buf[i++] = '0' + up.seconds % 10;
+            buf[i] = '\0';
             vga_println(buf);
         }
         else
