@@ -37,7 +37,7 @@ STRING      = kernel/utils/string.c
 STRINGO     = build/string.o
 TIMER       = kernel/drivers/timer/timer.c
 TIMERO      = build/timer.o
-FS       = kernel/drivers/file_system/fs.c
+FS       = kernel/file_system/fs.c
 FSO      = build/fs.o
 
 FLOPPY_SIZE = 1474560
