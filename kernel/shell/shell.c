@@ -1,6 +1,7 @@
 #include "shell.h"
 #include "string.h"
 #include "info.h"
+#include "file_system/fs.h"
 
 #define HISTORY_SIZE 10
 #define MAX_CMD_LEN 128
@@ -89,6 +90,8 @@ void shell(void)
             vga_println("  uptime   - show system uptime");
             vga_println("  ls       - list files (stub)");
             vga_println("  cat      - show file contents (stub)");
+            vga_println("  touch    - create a new file (stub)");
+
         }
         else if (strcmp(line, "clear") == 0)
         {
@@ -165,6 +168,19 @@ void shell(void)
                 vga_println("// shell.c source code stub");
             } else {
                 vga_print_color("File not found: ", VGA_LIGHT_RED, VGA_BLACK);
+                vga_println(filename);
+            }
+        }
+        else if (line[0]=='t' && line[1]=='o' && line[2]=='u' && line[3]=='c' && line[4]=='h' && line[5]==' ') {
+            char* filename = line + 6;
+
+            if (file_count < MAX_FILES) {
+                strlcpy(files[file_count], filename, MAX_FILENAME);
+                file_count++;
+                vga_print_color("Created file: ", VGA_LIGHT_GREEN, VGA_BLACK);
+                vga_println(filename);
+            } else {
+                vga_print_color("File list full, cannot create: ", VGA_LIGHT_RED, VGA_BLACK);
                 vga_println(filename);
             }
         }
