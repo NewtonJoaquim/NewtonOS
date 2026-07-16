@@ -25,7 +25,13 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y nasm i386-elf-gcc i386-elf-ld qemu-system-i386
+          # Basic tools
+          sudo apt-get install -y nasm qemu-system-i386
+          # 32‑bit cross compiler packages (Ubuntu 22.04+)
+          sudo apt-get install -y gcc-10-i386-linux-gnu binutils-i386-linux-gnu
+          # Provide the names expected by the Makefile
+          sudo ln -s /usr/bin/gcc-10-i386-linux-gnu /usr/bin/i386-elf-gcc
+          sudo ln -s /usr/bin/ld.bfd /usr/bin/i386-elf-ld
 
       - name: Build
         run: |
