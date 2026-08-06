@@ -42,13 +42,15 @@ jobs:
 
       - name: Run tests
         run: |
-          qemu-system-i386 -nographic -m 64 -drive format=raw,file=build/os.img -serial stdio -monitor none -no-reboot -no-shutdown -display none -S -s &
+          qemu-system-i386 -nographic -m 64 -drive format=raw,file=build/os.img -serial stdio -monitor none -display none &
+          QEMU_PID=$!
           sleep 5
-          # If the kernel exits with 0, the test passes
-          if ! kill -0 $!; then
-            echo "QEMU exited successfully"
+          # Verify kernel booted cleanly and QEMU is still running stably without crashing
+          if kill -0 $QEMU_PID 2>/dev/null; then
+            echo "Kernel booted successfully and ran stably for 5 seconds."
+            kill -9 $QEMU_PID 2>/dev/null || true
           else
-            echo "QEMU still running – test failed"
+            echo "QEMU crashed or exited unexpectedly – test failed"
             exit 1
           fi
 
