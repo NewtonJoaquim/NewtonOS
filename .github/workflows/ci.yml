@@ -27,11 +27,12 @@ jobs:
           sudo apt-get update
           # Basic tools
           sudo apt-get install -y nasm qemu-system-i386
-          # 32‑bit cross compiler packages (Ubuntu 22.04+)
-          sudo apt-get install -y gcc-10-i386-linux-gnu binutils-i386-linux-gnu
+          # 32-bit cross compiler packages
+          sudo apt-get install -y gcc-i686-linux-gnu binutils-i686-linux-gnu
           # Provide the names expected by the Makefile
-          sudo ln -s /usr/bin/gcc-10-i386-linux-gnu /usr/bin/i386-elf-gcc
-          sudo ln -s /usr/bin/ld.bfd /usr/bin/i386-elf-ld
+          sudo ln -sf /usr/bin/i686-linux-gnu-gcc /usr/bin/i386-elf-gcc
+          sudo ln -sf /usr/bin/i686-linux-gnu-ld /usr/bin/i386-elf-ld
+          sudo ln -sf /usr/bin/i686-linux-gnu-objcopy /usr/bin/i386-elf-objcopy
 
       - name: Build
         run: |
