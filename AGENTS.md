@@ -1,57 +1,84 @@
 # NewtonOS Agent Instructions
 
-This file provides concise guidance for AI coding agents working on the NewtonOS kernel project.  It focuses on build commands, architecture, key directories, and common pitfalls.  All references point to existing documentation in the repository.
+This file provides concise guidance for AI coding agents working on the NewtonOS kernel project. It focuses on build commands, architecture, key directories, coding conventions, and common pitfalls.
 
-## Build & Run
+## Build & Toolchain
 
-- `make` – Build the floppy image `os.img` (bootloader + kernel).
-- `make run` – Launch QEMU with the built image.
-- `make clean` – Remove all generated files.
+### Prerequisites
+- **Assembler**: `nasm`
+- **C Compiler**: `i386-elf-gcc` (freestanding cross-compiler target)
+- **Linker**: `i386-elf-ld`
+- **Binary Copy**: `i386-elf-objcopy`
+- **Emulator**: `qemu-system-i386`
+
+### Commands
+- `make` – Compiles all modules, links kernel, and builds floppy disk image `build/os.img`.
+- `make run` – Builds image (if needed) and launches `qemu-system-i386` with `-fda build/os.img`.
+- `make clean` – Removes all compiled binaries and object files from `build/`.
 
 ## Project Structure
 
-- **boot/** – 16‑bit bootloader (`bootloader.asm`) and 32‑bit kernel entry (`kernel_entry.asm`).
-- **kernel/** – Main C kernel and subsystems.
-  - `main.c` – Kernel entry point, initializes hardware and starts the shell.
-  - `drivers/` – Hardware drivers (VGA, keyboard, timer, RTC).
-  - `idt/` – Interrupt handling (IDT, PIC remap, ISR stubs).
-  - `shell/` – User‑facing shell.
-  - `file_system/` – Basic file system implementation.
-  - `utils/` – String and I/O helpers.
-- **build/** – Compiled output (bootloader, kernel, `os.img`).
-- **linker.ld** – Linker script; defines memory layout starting at `0x1000`.
-- **Makefile** – Build orchestration.
+- **[boot/](boot/)** – Bootloader and kernel setup assembly files.
+  - `bootloader.asm` – 16-bit real mode bootloader, enables A20 line, loads kernel sectors from disk to physical `0x1000`, enters 32-bit protected mode with GDT, jumps to `0x1000`.
+  - `kernel_entry.asm` – 32-bit entry stub (`_start`), initializes stack pointer `esp` to `0x9000`, and calls C `main()`.
+- **[kernel/](kernel/)** – Core C kernel modules and drivers.
+  - `main.c` – Kernel initialization sequence (`initalize()`) and main execution loop (`shell()`).
+  - **[drivers/](kernel/drivers/)** – Hardware interaction layer:
+    - `vga/` – VGA text-mode buffer drivers and color constants (`0xB8000`).
+    - `keyboard/` – PS/2 keyboard IRQ1 handler and scan-code mapping.
+    - `timer/` – PIT (Programmable Interval Timer) IRQ0 handler.
+    - `real_time_clock/` – CMOS RTC real-time clock driver.
+  - **[idt/](kernel/idt/)** – Interrupt Descriptor Table management:
+    - `idt.c` / `idt.h` – Gate setup and ISR vector table.
+    - `pic_remap.c` / `pic_remap.h` – Remaps 8259 PIC vectors to `0x20` (master) and `0x28` (slave).
+    - `isr_stubs.asm` – Low-level assembly ISR entry stubs.
+  - **[shell/](kernel/shell/)** – Interactive CLI shell implementation.
+  - **[file_system/](kernel/file_system/)** – Basic file system stub and interfaces.
+  - **[memory/](kernel/memory/)** – Reserved directory for future physical/virtual memory management modules.
+  - **[utils/](kernel/utils/)** – Helpers and hardware primitives:
+    - `io_helpers.h` – Port I/O inline assembly (`inb`, `outb`).
+    - `string.c` / `string.h` – Standard C string functions (`strlen`, `strcmp`, `strcpy`, `itoa`).
+    - `info.h` – System version / branding metadata.
+- **[build/](build/)** – Output directory for `.o`, `.bin`, `.elf`, and `os.img`.
+- **[linker.ld](linker.ld)** – Linker script setting text section origin at `0x1000`.
+- **[Makefile](Makefile)** – Build orchestration.
 
-## Key Conventions
+## Key Architecture & Conventions
 
-- **Assembler**: `nasm` (bootloader) and `nasm -f elf32` (kernel objects).
-- **C Compiler**: `i386-elf-gcc` with `-ffreestanding -m32 -O2 -nostdlib`.
-- **Linker**: `i386-elf-ld` with `linker.ld`.
-- **Memory Model**: Flat 32‑bit, no paging.
-- **Segment Selectors**: Code `0x08`, Data `0x10`, Stack `0x18`.
-- **Interrupts**: 256 IDT entries, PIC remapped to `0x20`/`0x28`.
-- **VGA**: Direct writes to `0xB8000` (80×25 text mode, 16 colors).
-- **Port I/O**: Helpers in `utils/io_helpers.h`.
+- **Toolchain Flags**:
+  - `CFLAGS`: `-ffreestanding -m32 -O2 -Wall -Wextra -nostdlib -Ikernel -Ikernel/utils -Ikernel/drivers`
+  - Include resolution: Source files use relative include paths resolved via `-Ikernel`, `-Ikernel/utils`, and `-Ikernel/drivers`.
+- **Memory Map**:
+  - `0x7C00`: Bootloader loaded by BIOS.
+  - `0x1000`: Kernel entry point (physical address specified in `linker.ld` and `bootloader.asm`).
+  - `0x9000`: Kernel stack top pointer (`esp`).
+  - `0xB8000`: VGA text mode frame buffer (80×25 text mode, 16 colors).
+- **Segment Selectors**:
+  - `0x08`: Code Segment (32-bit executable, flat 4GB limit).
+  - `0x10`: Data Segment (32-bit read/write, flat 4GB limit).
+- **Interrupt Vector Alignment**:
+  - Hardware IRQs remapped to `0x20`..`0x2F` to avoid conflict with x86 CPU exception vectors `0x00`..`0x1F`.
 
-## Common Pitfalls
+## Common Pitfalls & Agent Checklist
 
-- **Kernel size**: Must fit within the 1.44 MB floppy image; otherwise `make` will fail.
-- **Bootloader assumptions**: Kernel must be contiguous starting at LBA 1.
-- **Linker script**: `linker.ld` must match the bootloader load address (`0x1000`).
-- **No paging**: All addresses are physical; changing the memory layout requires updating the linker script and bootloader.
-- **GDT**: Set up only in the bootloader; kernel assumes a minimal GDT.
+- **Updating Makefile**: When adding a new `.c` or `.asm` file to the kernel, remember to add a rule to `Makefile` and include the object file in `KERNELELF` link list.
+- **Sector Count Limit in Bootloader**: `boot/bootloader.asm` defines `SECTOR_COUNT equ 20` (loads 20 sectors = 10,240 bytes). If kernel binary (`build/kernel.bin`) grows beyond 10 KB, `SECTOR_COUNT` in `bootloader.asm` must be increased accordingly.
+- **Freestanding Environment**: Standard C library headers (`<stdio.h>`, `<string.h>`, etc.) are unavailable due to `-nostdlib` and `-ffreestanding`. Always use custom helpers from `kernel/utils/`.
+- **Memory Layout & Linker Contract**: `linker.ld` sets `. = 0x1000;`. The bootloader jumps directly to `0x1000`. `boot/kernel_entry.asm` must remain the first object passed to `i386-elf-ld` so that `_start` resides at offset `0x1000`.
 
 ## Useful Links
 
+- [Makefile](Makefile) – Build configuration.
 - [linker.ld](linker.ld) – Memory layout contract.
-- [boot/bootloader.asm](boot/bootloader.asm) – Boot protocol.
-- [kernel/main.c](kernel/main.c) – Kernel initialization.
-- [kernel/idt/idt.c](kernel/idt/idt.c) – IDT setup.
+- [boot/bootloader.asm](boot/bootloader.asm) – Boot protocol & protected mode setup.
+- [boot/kernel_entry.asm](boot/kernel_entry.asm) – Kernel entry stub & stack initialization.
+- [kernel/main.c](kernel/main.c) – Main initialization flow.
+- [kernel/idt/idt.c](kernel/idt/idt.c) – Interrupt descriptor table.
+- [kernel/idt/isr_stubs.asm](kernel/idt/isr_stubs.asm) – Assembly ISR stubs.
 - [kernel/drivers/keyboard/keyboard.c](kernel/drivers/keyboard/keyboard.c) – Keyboard driver.
-- [kernel/drivers/timer/timer.c](kernel/drivers/timer/timer.c) – PIT timer.
+- [kernel/drivers/timer/timer.c](kernel/drivers/timer/timer.c) – PIT timer driver.
 - [kernel/drivers/real_time_clock/rtc.c](kernel/drivers/real_time_clock/rtc.c) – RTC driver.
-- [kernel/drivers/vga/vga_helpers.c](kernel/drivers/vga/vga_helpers.c) – VGA helpers.
-- [kernel/file_system/fs.c](kernel/file_system/fs.c) – File system.
-- [kernel/shell/shell.c](kernel/shell/shell.c) – Shell implementation.
-
-Feel free to ask for more details or clarification on any part of the project.
+- [kernel/drivers/vga/vga_helpers.c](kernel/drivers/vga/vga_helpers.c) – VGA screen handling.
+- [kernel/shell/shell.c](kernel/shell/shell.c) – Command shell.
+- [kernel/utils/io_helpers.h](kernel/utils/io_helpers.h) – Port I/O routines (`inb`/`outb`).
+- [kernel/utils/string.h](kernel/utils/string.h) – Utility string declarations.
