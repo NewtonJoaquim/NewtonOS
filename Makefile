@@ -40,56 +40,60 @@ TIMERO      = build/timer.o
 FS       = kernel/file_system/fs.c
 FSO      = build/fs.o
 
+BUILD_DIR   = build
 FLOPPY_SIZE = 1474560
 
-all: $(IMAGE)
+all: $(BUILD_DIR) $(IMAGE)
 
-$(BOOTBIN): $(BOOT)
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+$(BOOTBIN): $(BOOT) | $(BUILD_DIR)
 	$(ASM) $(ASMFLAGS) $< -o $@
 
-$(KERNELENTRYO): $(KERNELENTRY)
+$(KERNELENTRYO): $(KERNELENTRY) | $(BUILD_DIR)
 	$(ASM) $(ASMFLAGS_ELF) $< -o $@
 
-$(KERNELO): $(KERNELC)
+$(KERNELO): $(KERNELC) | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(ISRSTUBSO): $(ISRSTUBS)
+$(ISRSTUBSO): $(ISRSTUBS) | $(BUILD_DIR)
 	$(ASM) $(ASMFLAGS_ELF) $< -o $@
 
-$(IDTO): $(IDT)
+$(IDTO): $(IDT) | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(FSO): $(FS)
+$(FSO): $(FS) | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(PICREMAPO): $(PICREMAP)
+$(PICREMAPO): $(PICREMAP) | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(VGAO): $(VGA)
+$(VGAO): $(VGA) | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(KEYBOARDO): $(KEYBOARD)
+$(KEYBOARDO): $(KEYBOARD) | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(RTCO): $(RTC)
+$(RTCO): $(RTC) | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(SHELLO): $(SHELLSRC)
+$(SHELLO): $(SHELLSRC) | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(STRINGO): $(STRING)
+$(STRINGO): $(STRING) | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(TIMERO): $(TIMER)
+$(TIMERO): $(TIMER) | $(BUILD_DIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(KERNELELF): $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(RTCO) $(SHELLO) $(STRINGO) $(TIMERO) $(FSO) linker.ld
+$(KERNELELF): $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(RTCO) $(SHELLO) $(STRINGO) $(TIMERO) $(FSO) linker.ld | $(BUILD_DIR)
 	$(LD) $(LDFLAGS) -o $@ $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(RTCO) $(SHELLO) $(STRINGO) $(TIMERO) $(FSO)
 
-$(KERNELBIN): $(KERNELELF)
+$(KERNELBIN): $(KERNELELF) | $(BUILD_DIR)
 	$(OBJCOPY) -O binary $< $@
 
-$(IMAGE): $(BOOTBIN) $(KERNELBIN)
+$(IMAGE): $(BOOTBIN) $(KERNELBIN) | $(BUILD_DIR)
 	cat $(BOOTBIN) $(KERNELBIN) > $(IMAGE)
 	truncate -s $(FLOPPY_SIZE) $(IMAGE)
 
@@ -97,4 +101,6 @@ run: $(IMAGE)
 	$(QEMU) -fda $(IMAGE)
 
 clean:
-	rm -f $(BOOTBIN) $(KERNELENTRYO) $(KERNELO) $(ISRSTUBSO) $(IDTO) $(PICREMAPO) $(VGAO) $(KEYBOARDO) $(RTCO) $(SHELLO) $(STRINGO) $(KERNELELF) $(KERNELBIN) $(IMAGE)
+	rm -rf $(BUILD_DIR)
+
+.PHONY: all clean run

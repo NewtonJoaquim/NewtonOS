@@ -36,6 +36,7 @@ jobs:
 
       - name: Build
         run: |
+          mkdir -p build
           make clean
           make
 
